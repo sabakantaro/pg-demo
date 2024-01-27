@@ -4,111 +4,108 @@ import { client, pool } from "./db";
 
 export const app = express();
 
-type Project = {
+type User = {
   id: number;
-  name: string;
-  description: string;
+  email: string;
 };
 
-app.get("/projects", async (req: Request, res: Response) => {
-  const response = await pool.query<Project>(`SELECT * from projects;`);
+app.get("/users", async (req: Request, res: Response) => {
+  const response = await pool.query<User>(`SELECT * FROM users;`);
 
-  const projects = response.rows;
+  const users = response.rows;
 
-  res.json(projects);
+  res.json(users);
 });
 
 app.get(
-  "/projects/:id",
+  "/users/:id",
   async (req: Request<{ id: string }>, res: Response) => {
     const { id } = req.params;
 
     const query: QueryConfig = {
-      text: `SELECT * from projects WHERE id = $1;`,
+      text: `SELECT * FROM users WHERE id = $1;`,
       values: [id]
     };
 
-    const response = await pool.query<Project>(query);
+    const response = await pool.query<User>(query);
 
-    const projects = response.rows;
+    const users = response.rows;
 
-    res.json(projects[0]);
+    res.json(users[0]);
   }
 );
 
-app.post("/projects", (req: Request, res: Response) => {});
-app.patch("/projects/:id", (req: Request, res: Response) => {});
-app.delete("/projects/:id", (req: Request, res: Response) => {});
-app.get("/tasks", (req: Request, res: Response) => {});
+app.post("/users", (req: Request, res: Response) => {});
+app.patch("/users/:id", (req: Request, res: Response) => {});
+app.delete("/users/:id", (req: Request, res: Response) => {});
+app.get("/urls", async (req: Request, res: Response) => {
+  const response = await pool.query<Url>(`SELECT * FROM urls;`);
 
-type Task = {
+  const urls = response.rows;
+
+  res.json(urls);
+});
+
+type Url = {
   id: number;
-  project_id: number;
-  name: string;
-  description: string | null;
-  start_date: Date | null;
-  end_date: Date | null;
-  is_completed: boolean;
+  user_id: number;
+  url: string;
   create_at: Date;
 };
 
-type RequestBodyProps = Pick<
-  Task,
-  "name" | "description" | "start_date" | "end_date"
->;
-
 app.use(express.json());
 app.post(
-  "/projects/:projectId/tasks",
+  "/users/:userId/urls",
   async (
-    req: Request<{ projectId: string }, {}, RequestBodyProps>,
-    res: Response<Task>
+    req: Request<{ userId: string }, { url: string }>,
+    res: Response<Url>
   ) => {
-    // name, description, start_date, end_date
+    const { userId } = req.params;
+    const { url } = req.body;
 
-    const { projectId } = req.params;
-    const { description, end_date, name, start_date } = req.body;
-
-    const response = await pool.query<Task>(
+    const response = await pool.query<Url>(
       `
-        INSERT INTO tasks (project_id, name, description, start_date, end_date)
+        INSERT INTO urls (user_id, url, created_at)
         VALUES
-          ($1, $2, $3, $4, $5)
+          ($1, $2, $3)
         RETURNING *;
       `,
-      [projectId, name, description, start_date, end_date]
+      [userId, url, new Date()]
     );
 
     res.json(response.rows[0]);
   }
 );
+
 app.patch(
-  "/projects/:projectId/tasks/:taskId",
+  "/users/:userId/urls/:urlId",
   async (req: Request, res: Response) => {
-    const { taskId } = req.params;
-    const { description, end_date, name, start_date } = req.body;
+    const { userId } = req.params;
+    const { urlId } = req.params;
+    const { url } = req.body;
 
-    const response = await pool.query<Task>(
-      `UPDATE tasks SET name=$1, description=$2, start_date=$3, end_date=$4 WHERE id=$5 RETURNING *;`,
-      [name, description, start_date, end_date, taskId]
-    );
+    const response = await pool.query<Url>(
+      `UPDATE urls SET user_id=$1, url=$2, created_at=$3 WHERE id=$4 RETURNING *;`,
+      [userId, url, new Date(), urlId]
+      );
 
     res.json(response.rows[0]);
   }
 );
+
 app.delete(
-  "/projects/:projectId/tasks/:taskId",
+  "/users/:userId/urls/:urlId",
   async (req: Request, res: Response) => {
-    const { taskId } = req.params;
+    const { urlId } = req.params;
 
     await client.query("BEGIN");
 
     const response = await client.query(
-      `DELETE FROM tasks WHERE id=$1 RETURNING id;`,
-      [taskId]
+      `DELETE FROM urls WHERE id=$1 RETURNING id;`,
+      [urlId]
     );
 
-    if (response.rows[0].id.toString() === taskId && response.rowCount === 1) {
+    if (response.rows[0].id.toString() === urlId && response.rowCount === 1) {
       await client.query("COMMIT");
       res.json(response.rows[0]);
     } else {

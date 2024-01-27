@@ -1,16 +1,16 @@
-INSERT INTO projects (name, description) 
+INSERT INTO users (email)
 VALUES
-  ('project1', 'It is about project1'),
-  ('project2', 'It is about project2'),
-  ('project3', 'It is about project3'),
-  ('project4', 'It is about project4'),
-  ('project5', 'It is about project5');
+  ('user1@gmail.com'),
+  ('user2@gmail.com'),
+  ('user3@gmail.com'),
+  ('user4@gmail.com'),
+  ('user5@gmail.com');
 
 
-INSERT INTO tasks (project_id, name, description, start_date, end_date) 
+INSERT INTO urls (user_id, url, created_at)
 VALUES
-  (1,'Task1', 'It is about Task1', NOW(), NULL),
-  (2,'Task2', 'It is about Task2', NOW(), NULL),
-  (2,'Task3', 'It is about Task3', NULL, NULL),
-  (1,'Task4', 'It is about Task4', NULL, NULL),
-  (3,'Task5', 'It is about Task5', NOW(), NULL);
+  (1, 'https://translate.google.com', NOW()),
+  (2, 'https://translate.google.com', NOW()),
+  (2, 'https://translate.google.com', NOW()),
+  (1, 'https://translate.google.com', NOW()),
+  (3, 'https://translate.google.com', NOW());

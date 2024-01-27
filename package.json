@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsnd --inspect --clear -- src/index.ts",
-    "db:reset": "psql -U bart -d projects < ./src/db/migrations/init.sql && psql -U bart -d projects < ./src/db/seed/seed.sql"
+    "db:reset": "psql -U yanoryosuke -d urls < ./src/db/migrations/init.sql && psql -U yanoryosuke -d urls < ./src/db/seed/seed.sql"
   },
   "keywords": [],
   "author": "",

@@ -3,16 +3,16 @@ import { Client, ClientConfig, Pool, PoolConfig } from "pg";
 const poolConfig: PoolConfig = {
   host: "localhost",
   port: 5432,
-  database: "projects",
-  user: "bart"
+  database: "urls",
+  user: "yanoryosuke"
 };
 export const pool = new Pool(poolConfig);
 
 const clientConfig: ClientConfig = {
   host: "localhost",
   port: 5432,
-  database: "projects",
-  user: "bart"
+  database: "urls",
+  user: "yanoryosuke"
 };
 
 export const client = new Client(clientConfig);
